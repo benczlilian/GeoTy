@@ -1,0 +1,176 @@
+/* --- Estilos Globais --- */
+:root {
+    --poty-bg: #d6deef;      /* Azul claro acinzentado */
+    --poty-orange: #632907;  /* Marrom terroso escuro */
+    --poty-blue: #2a4166;    /* Azul profundo */
+    --poty-green: #5c732a;   /* Verde oliva */
+    --poty-yellow: #d4af1c;  /* Dourado/Amarelo fechado */
+    --poty-back: #AAADAD;
+}
+
+body {
+    margin: 0; padding: 0;
+    font-family: 'Corbel', sans-serif;
+    background-color: var(--poty-bg);
+    overflow-x: hidden;
+}
+
+#map {
+    top: 0; height: 100vh; width: 100vw;
+    position: fixed; z-index: 0; 
+}
+
+#story {
+    width: 100%; position: relative; z-index: 5;
+    pointer-events: none;
+}
+
+/* Configuração dos Steps (Caixas de Texto) */
+.step {
+    padding-bottom: 50vh;
+    margin-bottom: 90vh; 
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s;
+    pointer-events: none;
+    display: flex; justify-content: flex-start;
+    padding-left: 50px;
+}
+
+.step:first-child { margin-top: 100vh; }
+.step:last-child { margin-bottom: 30vh; }
+
+.step.active {
+    opacity: 1; visibility: visible;
+    pointer-events: all;
+}
+
+.step div.light {
+    background-color: rgba(214, 222, 239, 0.95); /* Opacidade com a nova cor de fundo */
+    color: #333; padding: 25px; border-radius: 5px;
+    border-top: 5px solid var(--poty-orange);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    max-width: 350px; width: 90%; text-align: center;
+}
+
+.step h3 { color: var(--poty-green); font-size: 1.5rem; font-weight: bold; text-transform: uppercase; margin-top: 0; }
+.step p { font-size: 1.1rem; line-height: 1.6; color: var(--poty-blue); }
+.step img { width: 100%; height: auto; border-radius: 3px; margin: 10px 0;  }
+.caption { font-size: 0.8rem !important; color: #666 !important; font-style: italic; }
+.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+.video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+/* Controles Flutuantes */
+#floating-controls {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 2000;
+    display: flex;       
+    flex-direction: row; 
+    gap: 10px;           
+    align-items: center;
+    pointer-events: none; 
+    transition: all 0.5s ease;
+}
+
+.btn-floating {
+    position: relative; 
+    color: #fff;
+    border: none; 
+    padding: 8px 16px;   
+    font-size: 12px;     
+    border-radius: 50px;
+    font-weight: bold; 
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    transition: transform 0.2s, background-color 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    pointer-events: auto !important; 
+}
+
+.btn-floating:hover {
+    transform: scale(1.05);
+}
+
+#toggle-mode { background-color: var(--poty-orange); }
+.btn-layer { background-color: var(--poty-yellow); }
+.btn-layer.layers-off { background-color: #999; opacity: 0.8; }
+
+.buttons-hidden {
+    opacity: 0 !important;
+    transform: translateY(20px);
+    pointer-events: none !important;
+}
+
+/* --- LEAFLET & MAPA --- */
+.leaflet-container { background: #d6deef; } 
+.leaflet-custom-marker { transition: opacity 0.7s ease; }
+
+/* Capa (Header) */
+#video-piece-title-video {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; z-index: 0; opacity: 0.5;
+}
+.header-content {
+    z-index: 2; position: relative; text-align: center;
+    color: white; padding: 20px; max-width: 800px;
+}
+.header-content h1 {
+    font-size: 1rem; text-transform: uppercase;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+    margin-bottom: 10px; color: var(--poty-bg);
+}
+.header-content img {
+    opacity: 20%;
+    width: 50%; height: auto;
+}
+.header-content p { font-size: 1.0rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); }
+#scroll-overlay {
+    position: absolute; bottom: 40px; z-index: 2;
+    color: white; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 2px; animation: bounce 2s infinite;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-10px);}
+  60% {transform: translateY(-5px);}
+}
+
+#header-step {
+    position: relative; height: 100vh; width: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    background-color: #000; z-index: 500;
+    margin-top: 0 !important; margin-bottom: 50vh; padding: 0 !important;
+    opacity: 1 !important; visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+/* Interação do Mapa */
+.step .light, .header-content {
+    pointer-events: auto !important;
+}
+
+.leaflet-control-container { z-index: 1000 !important; }
+.leaflet-top, .leaflet-bottom, .leaflet-left, .leaflet-right {
+    pointer-events: none; z-index: 1000 !important;
+}
+.leaflet-control-zoom {
+    pointer-events: auto !important; display: block !important;
+    opacity: 1 !important; box-shadow: 0 1px 5px rgba(0,0,0,0.65) !important;
+}
+
+/* --- RESPONSIVO --- */
+@media (max-width: 768px) {
+    .step { justify-content: center !important; padding-left: 0 !important; }
+    .step .light {
+        max-width: 90% !important; margin-left: auto !important; margin-right: auto !important;
+        text-align: center;
+    }
+    #header-step h1 { font-size: 2.5rem; }
+    #floating-controls { bottom: 20px; right: 20px; gap: 8px; }
+    .btn-floating { padding: 6px 12px; font-size: 11px; }
+}

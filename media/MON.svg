@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 27.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="125.67px" height="38.13px" viewBox="0 0 125.67 38.13" style="enable-background:new 0 0 125.67 38.13;"
+	 xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#SVGID_00000036932989337743106080000008551062624937063837_);}
+	.st1{fill:#F7CE46;}
+</style>
+<g>
+	<defs>
+		<rect id="SVGID_1_" width="125.67" height="38.13"/>
+	</defs>
+	<clipPath id="SVGID_00000148634626792382770030000002485703095805894023_">
+		<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+	</clipPath>
+	<g style="clip-path:url(#SVGID_00000148634626792382770030000002485703095805894023_);">
+		<path d="M18.57,19.61L28.71,0.54h8.44v37.59h-8.5V16.89l-7.73,15.04h-4.85L8.5,17.05v21.08H0V0.54h8.39L18.57,19.61z"/>
+		<path d="M58.26,38.68c-8.55,0-14.82-5.18-14.82-16.4V16.4C43.44,5.07,49.71,0,58.26,0c8.55,0,14.82,5.07,14.82,16.4v5.88
+			C73.08,33.5,66.81,38.68,58.26,38.68z M52.48,22.28c0,6.16,2.01,8.88,5.77,8.88s5.78-2.72,5.78-8.88V16.4
+			c0-6.16-2.02-8.88-5.78-8.88s-5.77,2.72-5.77,8.88V22.28z"/>
+		<path d="M108.97,0.54v37.59h-7.3L87.83,17.32v20.81h-8.5V0.54h7.19l13.95,21.08V0.54H108.97z"/>
+		<path class="st1" d="M125.67,38.13h-9.59v-9.59h9.59V38.13z"/>
+	</g>
+</g>
+</svg>

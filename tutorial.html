@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Story Map</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Corbel&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style-custom_tutorial.css">
+    <link rel="icon" href="media_tutorial/pinhao2.png">
+
+    <style>
+        #loader {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: #efebd6; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Corbel', sans-serif; font-size: 20px; color: #708444;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="loader">Carregando...</div>
+
+    <nav class="nav-sm" style="position:fixed; top:10px; right:10px; z-index:1000;">
+
+        <span></span>
+        <span></span>
+
+    </nav>
+
+    
+    <button id="toggle-mode" class="btn-floating">Ver Mapa</button>
+
+    <main id="scrolly-main">
+        <div id="scrolly">
+            <div id="map"></div>
+            <div id="story"></div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="https://unpkg.com/intersection-observer@0.12.0/intersection-observer.js"></script>
+    <script src="https://unpkg.com/scrollama"></script>
+
+    <script src="google-doc-url_tutorial.js"></script>
+    <script src="story-map_tutorial.js"></script>
+
+</body>
+</html>
