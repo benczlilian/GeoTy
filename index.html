@@ -9,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Corbel&display=swap" rel="stylesheet">
     
     <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
-
+    <!-- Load Bootstrap --> 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
     <link rel="stylesheet" href="css/style-custom.css">
     <link rel="icon" href="media/pinhao2.png">
@@ -22,26 +24,7 @@
             font-family: 'Corbel', sans-serif; font-size: 20px; color: #708444;
         }
     </style>
-    <script type="text/javascript"> // Clarity
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xdt37l1p7j");
-    </script>
 
-    <script> // 
-    !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="Rn Ln init Gn Jn Si Zn Yn Vn capture calculateEventProperties ns register register_once register_for_session unregister unregister_for_session ls getFeatureFlag getFeatureFlagPayload getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync us identify setPersonProperties unsetPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset setIdentity clearIdentity get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException addExceptionStep captureLog startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty ss ts createPersonProfile setInternalOrTestUser os Un ds opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Xn debug Ii mr getPageViewId captureTraceFeedback captureTraceMetric jn".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-    posthog.init('phc_wMjoTyzPwsRqHmfUVJpXJAxFhJbhfJzg8oXSbhainiAW', {
-        api_host: 'https://us.i.posthog.com',
-        defaults: '2026-05-30',
-        person_profiles: 'identified_only',
-        opt_in_site_apps: true, 
-        session_recording: {
-        recordCanvas: true  
-        }
-    })
-    </script>
 
      
 </head>
@@ -50,7 +33,32 @@
 
 
     <div id="loader">Carregando...</div>
-
+    
+    <nav class="navbar cor_fundo navbar-expand-lg navbar-dark">
+      <a class="navbar-brand"><img src="media/TCC2.png" width="80px" height="40px"> </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button> 
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link cor-item1" href="sobre.html" >Sobre</a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link cor-item1 active" href="index.html" >Story Map</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link cor-item1" href="geotymap.html" >GeoTy Map</a>
+          </li>                         
+          <li class="nav-item"> 
+            <a class="nav-link cor-item1" href="timeline.html">Timeline</a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link cor-item1" href="referencias.html">Referências</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
     
     <button id="toggle-mode" class="btn-floating">Ver Mapa</button>
 
@@ -72,6 +80,6 @@
     <script src="google-doc-url.js"></script>
     <script src="leaflet.extra-markers.min.js"></script>
     <script src="story-map_curitybapoty.js"></script>
-
+    <script src="scripts/estilos-geojson.js"></script>
 </body>
 </html>

@@ -8,6 +8,72 @@ var vectorCache = {};
 var showLayers = true; 
 var currentChapterIndex = -1; 
 
+function applyGeoJsonStyle(data, url, overlayOpacity) {
+    var fileName = url.split('/').pop();
+    var configKey = fileName.substring(0, fileName.lastIndexOf('.')).toLowerCase();
+    
+    var config = (typeof geojsonConfigs !== 'undefined' && geojsonConfigs[configKey]) ? geojsonConfigs[configKey] : null;
+
+    var options = {
+        style: function(feature) {
+            var defaultColor = '#DC4D01';
+            var defaultFillOpacity = overlayOpacity !== undefined ? overlayOpacity : 0.5;
+            
+            if (!config) return { color: defaultColor, weight: 2, opacity: 1, fillOpacity: defaultFillOpacity };
+            
+            var style = {
+                color: config.corBorda || defaultColor,
+                weight: config.pesoBorda !== undefined ? config.pesoBorda : 2,
+                opacity: config.opacidadeBorda !== undefined ? config.opacidadeBorda : 1,
+                fillOpacity: config.opacidadePreenchimento !== undefined ? config.opacidadePreenchimento : defaultFillOpacity,
+                fillColor: defaultColor
+            };
+
+            if (config.cores) {
+                var foundColor = false;
+                for (var prop in feature.properties) {
+                    var val = feature.properties[prop];
+                    if (config.cores[val]) {
+                        style.fillColor = config.cores[val];
+                        if (!config.corBorda) style.color = config.cores[val]; // Se não tiver cor da borda, usa a cor do fill
+                        foundColor = true;
+                        break;
+                    }
+                }
+                if (!foundColor) {
+                    for (var prop in feature.properties) {
+                        if (config.cores[prop]) {
+                            style.fillColor = config.cores[prop];
+                            if (!config.corBorda) style.color = config.cores[prop];
+                            break;
+                        }
+                    }
+                }
+            }
+            return style;
+        },
+        onEachFeature: function(feature, layer) {
+            if (config && config.atributosTooltip && config.atributosTooltip.length > 0) {
+                var tooltipContent = config.atributosTooltip.map(function(attr) {
+                    return feature.properties[attr] ? "<b>" + attr + ":</b> " + feature.properties[attr] : "";
+                }).filter(Boolean).join("<br>");
+                
+                if (tooltipContent) {
+                    layer.bindTooltip(tooltipContent, { sticky: true });
+                }
+            }
+        }
+    };
+
+    if (config && config.tamanhoPonto) {
+        options.pointToLayer = function(feature, latlng) {
+            return L.circleMarker(latlng, { radius: config.tamanhoPonto });
+        };
+    }
+
+    return L.geoJSON(data, options);
+}
+
 function initStoryMap(data) {
     var isMobile = (window.innerWidth <= 768) || (L.Browser.mobile);
 
@@ -238,11 +304,14 @@ function initStoryMap(data) {
                 } else {
                     var layerName = input;
                     var wmsUrl = 'https://idea.ufpr.br/geoserver/ows';
-                    if (!layerName.includes(':') && !layerName.startsWith('http')) layerName = 'geonode:' + layerName;
                     
-                    if (layerName.startsWith('http')) {
-                        layerObj = { type: 'image', url: input, layerInstance: null };
+                    var isLocalTileOrImage = layerName.startsWith('http') || layerName.includes('/') || inputLower.includes('{z}') || inputLower.endsWith('.png') || inputLower.endsWith('.jpg');
+                    
+                    if (isLocalTileOrImage) {
+                        layerObj = { type: 'image', url: input, layerInstance: null, opacity: currentOpacity };
                     } else {
+                        if (!layerName.includes(':')) layerName = 'geonode:' + layerName;
+                        
                         var wmsLayer = L.tileLayer.wms(wmsUrl, {
                             layers: layerName, 
                             format: 'image/png', 
@@ -482,23 +551,25 @@ function initStoryMap(data) {
                             if (currentOverlay.type === 'wms') {} 
                             else if (currentOverlay.type === 'image') {
                                 if(!currentOverlay.layerInstance) {
-                                    currentOverlay.layerInstance = L.tileLayer(currentOverlay.url, { noWrap: true, tms: false });
+                                    currentOverlay.layerInstance = L.tileLayer(currentOverlay.url, { 
+                                        noWrap: true, 
+                                        tms: false,
+                                        opacity: currentOverlay.opacity !== undefined ? currentOverlay.opacity : 0.8
+                                    });
                                 }
                             }
                             else if (currentOverlay.type === 'geojson') {
                                 if (!currentOverlay.layerInstance) {
                                     if (vectorCache[currentOverlay.url]) {
                                         vectorCache[currentOverlay.url].then(data => {
-                                            var style = { color: '#DC4D01', weight: 2, opacity: 1, fillOpacity: (currentOverlay.opacity || 0.5) };
-                                            currentOverlay.layerInstance = L.geoJSON(data, { style: style });
+                                            currentOverlay.layerInstance = applyGeoJsonStyle(data, currentOverlay.url, currentOverlay.opacity);
                                             if(currentChapterIndex === idx && showLayers) currentOverlay.layerInstance.addTo(map);
                                         });
                                     } else {
                                         fetch(currentOverlay.url)
                                             .then(res => res.json())
                                             .then(data => {
-                                                var style = { color: '#DC4D01', weight: 2, opacity: 1, fillOpacity: (currentOverlay.opacity || 0.5) };
-                                                currentOverlay.layerInstance = L.geoJSON(data, { style: style });
+                                                currentOverlay.layerInstance = applyGeoJsonStyle(data, currentOverlay.url, currentOverlay.opacity);
                                                 if(currentChapterIndex === idx && showLayers) currentOverlay.layerInstance.addTo(map);
                                             })
                                             .catch(err => console.error("Erro GeoJSON:", err));

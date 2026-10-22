@@ -5,11 +5,19 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
   <link rel="icon" href="media/pinhao2.png">
-  <title>GeoTy</title>
+  <title>GeoTy - Mapa Interativo</title>
  
   <!-- Load Leaflet CSS and JS-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Load Leaflet Locate Control (Localização do usuário) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+  <!-- Load Leaflet Search Control (Busca das obras) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.2/dist/leaflet-search.min.css" />
+  <script src="https://unpkg.com/leaflet-search@3.0.2/dist/leaflet-search.min.js"></script>
 
   <!-- Load Leaflet basemap providers -->
   <script src="https://unpkg.com/leaflet-providers@2.0.0/leaflet-providers.js"></script>
@@ -27,11 +35,16 @@
   <!-- Load Font Google -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
 
+  <!-- Load Leaflet Routing Machine (Para rotas internas OSM) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
   <!-- Load Font-Awesome -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   <link rel="stylesheet" href="markers/leaflet.extra-markers.min.css">
+  
+  <!-- CSS da Aplicação -->
   <link rel="stylesheet" href="css/style_map.css">
-  <link rel="stylesheet" href="css/style-desktop.css">
   <link rel="stylesheet" href="css/loader.css">
 
   <!-- Load Bootstrap --> 
@@ -40,57 +53,48 @@
 </head>
 
 <body>
-<nav class="nav-sm">
-  <input type="checkbox">
-    <span></span>
-    <span></span>
-    <div class="menu">
-        <li><a href="sobre.html">SOBRE</a></li>
-        <li><a href="index.html">STORY MAP</a></li>
-        <li><a href="geotymap.html">GEOTY MAP</a></li>
-        <li><a href="timeline.html">TIMELINE</a></li>
-        <li><a href="referencias.html">REFERÊNCIAS</a></li>
-    </div>
-</nav>
-
-  <div id="title">
-    <div id="logo"></div>
-    <div id="header"></div>
-  </div>
-
-  <div id="narration">
-    <div id="contents">
-      <div id="top"></div>
-    </div>
-  </div>
+<!-- Menu de Navegação -->
+    <nav class="navbar cor_fundo navbar-expand-lg navbar-dark">
+      <a class="navbar-brand"><img src="media/TCC2.png" width="80px" height="40px"> </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button> 
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link cor-item1" href="sobre.html" >Sobre</a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link cor-item1" href="index.html" >Story Map</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link cor-item1" href="geotymap.html" >GeoTy Map</a>
+          </li>                         
+          <li class="nav-item"> 
+            <a class="nav-link cor-item1" href="timeline.html">Timeline</a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link cor-item1" href="referencias.html">Referências</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
   <div class="loader">Carregando...</div>
+  
   <div id="map"></div>
 
   <script type="text/javascript">
     var map = L.map('map', {
-      center: [0, 0],
-      zoom: 0.5,
+      center: [-25.4284, -49.2733], // Centralizado em Curitiba
+      zoom: 14,
       scrollWheelZoom: true,
       zoomControl: false,
       tap: false
     });
-
-  
-    // Simulate loading document settings
-    loadData(function(settings) {
-      var documentSettings = {};
-      settings.forEach(function(setting) {
-        documentSettings[setting.Setting] = setting.Customize;
-      });
-
-      document.title = documentSettings["_mapTitle"];
-      $('#header').append('<h1>' + (documentSettings["_mapTitle"] || '') + '</h1>');
-      $('#header').append('<h2>' + (documentSettings["_mapSubtitle"] || '') + '</h2>');
-    });
-    
   </script>
 
+  <!-- Scripts da Aplicação -->
   <script type="text/javascript" src="google-doc-map-url.js"></script>
   <script type="text/javascript" src="markers/leaflet.extra-markers.min.js"></script>
   <script type="text/javascript" src="scripts/constants.js"></script>

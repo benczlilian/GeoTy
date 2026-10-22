@@ -8,6 +8,39 @@
     --poty-back: #AAADAD;
 }
 
+
+
+/* ---------------------------------------------------
+   2. MENU DE NAVEGAÇÃO (BOOTSTRAP NAVBAR)
+--------------------------------------------------- */
+.cor_fundo {
+    background-color: #efebd6 !important;
+    background-image: url("https://www.transparenttextures.com/patterns/otis-redding.png");
+}
+
+.navbar {
+    z-index: 10000;  
+    height: auto;
+    opacity: 0.9;
+    color: #3D5368 !important;
+    text-transform: uppercase;
+}
+
+.active .nav-link {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.cor-item1 { color: #3D5368 !important; opacity: 0.6; transition: 0.3s; }
+.cor-item2 { color: #DC4D01 !important; opacity: 0.6; transition: 0.3s; }
+.cor-item3 { color: #708444 !important; opacity: 0.6; transition: 0.3s; }
+.cor-item4 { color: #BD9825 !important; opacity: 0.6; transition: 0.3s; }
+
+.cor-item1:hover, .cor-item2:hover, .cor-item3:hover, .cor-item4:hover {
+    opacity: 1;
+}
+
+
 body {
     margin: 0; padding: 0;
     font-family: 'Corbel', sans-serif;

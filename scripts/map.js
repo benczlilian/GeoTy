@@ -1,27 +1,21 @@
 $(window).on('load', function() {
   var documentSettings = {};
 
-  const CHAPTER_ZOOM = 5;
-
   $.get('csv/Options.csv', function(options) {
-
     $.get('csv/Chapters.csv', function(chapters) {
       initMap(
         $.csv.toObjects(options),
         $.csv.toObjects(chapters)
       )
-    }).fail(function(e) { alert('Found Options.csv, but could not read Chapters.csv') });
+    }).fail(function(e) { alert('Encontrado Options.csv, mas não foi possível ler Chapters.csv') });
 
   }).fail(function(e) {
-
     var parse = function(res) {
       return Papa.parse(Papa.unparse(res[0].values), {header: true} ).data;
     }
 
     if (typeof googleDocURL !== 'undefined' && googleDocURL) {
-
       if (typeof googleApiKey !== 'undefined' && googleApiKey) {
-
         var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/'
         var spreadsheetId = googleDocURL.split('/d/')[1].split('/')[0];
 
@@ -31,376 +25,437 @@ $(window).on('load', function() {
         ).then(function(options, chapters) {
           initMap(parse(options), parse(chapters))
         })
-
       } else {
-        alert('You load data from a Google Sheet, you need to add a free Google API key')
+        alert('Para carregar dados do Google Sheets, necessita de uma chave API do Google')
       }
-
     } else {
-      alert('You need to specify a valid Google Sheet (googleDocURL)')
+      alert('Necessita de especificar um Google Sheet válido (googleDocURL)')
     }
-
-  })
+  });
+  
   function createDocumentSettings(settings) {
     for (var i in settings) {
       var setting = settings[i];
       documentSettings[setting.Setting] = setting.Customize;
     }
   }
+  
   function getSetting(s) {
     return documentSettings[constants[s]];
   }
-  function trySetting(s, def) {
-    s = getSetting(s);
-    if (!s || s.trim() === '') { return def; }
-    return s;
+
+  function addBaseMap() {
+    var mapboxUrl = 'https://api.mapbox.com/styles/v1/lbencz/clw6n5q530c5p01pk10p54u70/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibGJlbmN6IiwiYSI6ImNsZGVuZDJudzBhdDgzb3FiY3N6eDBhaXgifQ.78HzulaJ8rRPgX0bxND9zg';
+    var mapboxLayer = L.tileLayer(mapboxUrl, {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      maxZoom: 20
+    });
+    
+    var satelliteUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+    var satelliteLayer = L.tileLayer(satelliteUrl, {
+      attribution: 'Imagery &copy; Google',
+      maxZoom: 20
+    });
+    
+    mapboxLayer.addTo(map);
+    
+    var baseMaps = {
+      "Mapa Padrão": mapboxLayer,
+      "Satélite": satelliteLayer
+    };
+    
+    L.control.layers(baseMaps, null, {
+      collapsed: true,
+      position: 'bottomright' 
+    }).addTo(map);
   }
-function addBaseMap() {
-  var mapboxUrl = 'https://api.mapbox.com/styles/v1/lbencz/clw6n5q530c5p01pk10p54u70/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibGJlbmN6IiwiYSI6ImNsZGVuZDJudzBhdDgzb3FiY3N6eDBhaXgifQ.78HzulaJ8rRPgX0bxND9zg';
-  var mapboxLayer = L.tileLayer(mapboxUrl, {
-    attribution: 'Code adapted <a href="https://github.com/HandsOnDataViz/leaflet-storymaps-with-google-sheets">GitHub</a> ' +
-                 'Map data & copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> ' +
-                 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>' + ' <a href="https://qms.nextgis.com/geoservices/1135/">Google Satellite Hybrid</a>'+' By Lilian Bencz',
-    maxZoom: 20
-  });
-  
-  var satelliteUrl = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
-  var satelliteLayer = L.tileLayer(satelliteUrl, {
-    attribution: 'Code adapted <a href="https://github.com/HandsOnDataViz/leaflet-storymaps-with-google-sheets">GitHub</a> ' +
-                 'Map data & copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> ' +
-                 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>' + ' <a href="https://qms.nextgis.com/geoservices/1135/">Google Satellite Hybrid</a>'+' By Lilian Bencz',
-    maxZoom: 20
-  });
-  
-  // Adiciona a camada Mapbox como camada base padrão
-  mapboxLayer.addTo(map);
-  
-  // Adiciona o controle de camadas com as duas camadas base
-  var baseMaps = {
-    "Mapbox": mapboxLayer,
-    "Google Satellite": satelliteLayer
-  };
-  
-  L.control.layers(baseMaps, null, {
-    collapsed: true,
-    position: 'bottomright'
-  }).addTo(map);
-}
 
   function initMap(options, chapters) {
     createDocumentSettings(options);
 
-    var chapterContainerMargin = 70;
-
-    document.title ='GeoTy';
-    $('#header').append('<img src="media/TCC3.png" width="210px" height="120px" >');
-    $('#header').append('<h2><small style="font-size: 11pt; margin:10px;"> Explore as obras de Poty Lazzarotto espalhadas por Curitiba. Navegue pelo mapa para descobrir e se encantar com os murais e monumentos criados por um dos mais renomados artistas curitibanos. Cada ponto no mapa revela uma obra única, permitindo que você conheça e aprecie a beleza artística que Poty trouxe para a cidade.<br><div class="arrow"><span></span><span></span><span></span></div></small></h2>');
+    document.title ='GeoTy - Exploração e Rotas';
     addBaseMap();
 
     if (getSetting('_zoomControls') !== 'off') {
       L.control.zoom({
-        position: getSetting('_zoomControls')
+        position: 'bottomright' 
       }).addTo(map);
     }
 
-    var markers = [];
+    L.control.locate({
+      position: 'bottomright', 
+      strings: {
+          title: "Mostrar a minha localização atual" 
+      },
+      locateOptions: {
+          enableHighAccuracy: true, 
+          maxZoom: 16 
+      },
+      icon: 'icone-gps-personalizado' 
+    }).addTo(map);
+
+    var markersLayer = new L.LayerGroup();  
+    map.addLayer(markersLayer);
+
     var latlngs = [];
 
-    var markActiveColor = function(k) {
+    for (var i in chapters) {
+      var c = chapters[i];
 
-      for (var i = 0; i < markers.length; i++) {
-        if (markers[i] && markers[i]._icon) {
-          markers[i]._icon.className = markers[i]._icon.className.replace(' marker-active', '');
+      if (!isNaN(parseFloat(c['Latitude'])) && !isNaN(parseFloat(c['Longitude']))) {
+        var lat = parseFloat(c['Latitude']);
+        var lon = parseFloat(c['Longitude']);
+        
+        var icon = typeof pinhaoIcon !== 'undefined' ? pinhaoIcon : new L.Icon.Default();
 
-          if (i == k) {
+        var tituloObra = c['Chapter'].replace(/'/g, "\\'");
 
-            markers[k]._icon.className += ' marker-active';
-          }
+        var popupContent = "<div class='custom-popup'>" +
+                           "<h6 style='color: #DC4D01; font-weight: bold; margin-bottom: 10px; text-align: center; font-size: 16px;'>" + c['Chapter'] + "</h6>";
+        
+        if (c['Media Link']) {
+            popupContent += "<img src='" + c['Media Link'] + "' onclick='abrirImagemModal(\"" + c['Media Link'] + "\", \"" + tituloObra + "\")' alt='Expandir imagem de " + c['Chapter'] + "'/>";
+            
+            if (c['Media Credit']) {
+                popupContent += "<p style='font-size: 10px; color: #777; font-style: italic; text-align: right; width: 100%; margin-top: -8px; margin-bottom: 12px; line-height: 1.2;'>Crédito: " + c['Media Credit'] + "</p>";
+            }
         }
+
+        popupContent += "<p style='margin-bottom: 12px; font-size: 13px; text-align: justify; max-height: 120px; overflow-y: auto;'>" + (c['Description'] || '') + "</p>" +
+                        
+                        "<hr style='width: 100%; border: 0.5px solid #eee; margin: 10px 0;'/>" +
+                        "<p style='margin-bottom: 8px; font-size: 12px; font-weight: 500;'>Adicionar obra à sua rota:</p>" +
+                        "<div style='display: flex; gap: 8px; justify-content: center; width: 100%;'>" +
+                           "<button onclick='adicionarPontoRota(" + lat + ", " + lon + ", \"foot\")' class='btn btn-sm' style='background-color: #708444; color: white; font-size: 12px; border-radius: 20px; padding: 6px 12px; border: none; cursor: pointer;'><i class='fas fa-walking'></i> + A pé</button>" +
+                           "<button onclick='adicionarPontoRota(" + lat + ", " + lon + ", \"bike\")' class='btn btn-sm' style='background-color: #3D5368; color: white; font-size: 12px; border-radius: 20px; padding: 6px 12px; border: none; cursor: pointer;'><i class='fas fa-bicycle'></i> + De Bike</button>" +
+                        "</div>" +
+                        "</div>";
+
+        var isMobile = window.innerWidth < 768;
+
+        var marker = L.marker([lat, lon], {
+          icon: icon,
+          title: c['Chapter'],
+          opacity: c['Marker'] === 'Hidden' ? 0 : 0.9,
+          interactive: c['Marker'] === 'Hidden' ? false : true,
+        }).bindPopup(popupContent, { 
+            // Se for telemóvel a largura máxima é 280, se for computador é 320
+            maxWidth: isMobile ? 280 : 320, 
+            
+            // Se for telemóvel, afasta só 80px do topo. Se for computador, afasta 100px.
+            autoPanPaddingTopLeft: [10, isMobile ? 80 : 100], 
+            autoPanPaddingBottomRight: [10, 20] 
+        });  
+
+        markersLayer.addLayer(marker);
+        latlngs.push([lat, lon]); 
       }
-    };
-
-    var pixelsAbove = [];
-    var chapterCount = 0;
-    var currentlyInFocus; 
-    var overlay;   
-    var geoJsonOverlay;
-
-for (i in chapters) {
-  var c = chapters[i];
-
-  if (!isNaN(parseFloat(c['Latitude'])) && !isNaN(parseFloat(c['Longitude']))) {
-    var lat = parseFloat(c['Latitude']);
-    var lon = parseFloat(c['Longitude']);
-    chapterCount += 1;
-    
-    var icon = pinhaoIcon;
-
-    markers.push(
-      L.marker([lat, lon], {
-        icon: icon,
-        opacity: c['Marker'] === 'Hidden' ? 0 : 0.9,
-        interactive: c['Marker'] === 'Hidden' ? false : true,
-      }).bindPopup(c['Chapter']));
-
-    latlngs.push([lat, lon]); 
-      }
-    
-    markers.forEach(marker => marker.addTo(map));
-
-
-  var container = $('<div></div>', {
-    id: 'container' + i,
-    class: 'chapter-container'
-  });
-
-  var media = null;
-  var mediaContainer = null;
-
-  var source = '';
-  if (c['Media Credit Link']) {
-    source = $('<a>', {
-      text: c['Media Credit'],
-      href: c['Media Credit Link'],
-      target: "_blank",
-      class: 'source'
-    });
-  } else {
-    source = $('<span>', {
-      text: c['Media Credit'],
-      class: 'source'
-    });
-  }
-
-  if (c['Media Link'] && c['Media Link'].indexOf('youtube.com/') > -1) {
-    media = $('<iframe></iframe>', {
-      src: c['Media Link'],
-      width: '100%',
-      height: '100%',
-      frameborder: '0',
-      allow: 'autoplay; encrypted-media',
-      allowfullscreen: 'allowfullscreen',
-    });
-
-    mediaContainer = $('<div></div>', {
-      class: 'img-container'
-    }).append(media).after(source);
-  }
-
-  // If not YouTube: either audio or image
-  var mediaTypes = {
-    'jpg': 'img',
-    'jpeg': 'img',
-    'png': 'img',
-    'tiff': 'img',
-    'geotiff': 'img',
-    'gif': 'img',
-    'mp3': 'audio',
-    'ogg': 'audio',
-    'wav': 'audio',
-  }
-
-  var mediaExt = c['Media Link'] ? c['Media Link'].split('.').pop().toLowerCase() : '';
-  var mediaType = mediaTypes[mediaExt];
-
-  if (mediaType) {
-    media = $('<' + mediaType + '>', {
-      src: c['Media Link'],
-      controls: mediaType === 'audio' ? 'controls' : '',
-      alt: c['Chapter']
-    });
-
-    var enableLightbox = getSetting('_enableLightbox') === 'yes' ? true : false;
-    if (enableLightbox && mediaType === 'img') {
-      var lightboxWrapper = $('<a></a>', {
-        'data-lightbox': c['Media Link'],
-        'href': c['Media Link'],
-        'data-title': c['Chapter'],
-        'data-alt': c['Chapter'],
-      });
-      media = lightboxWrapper.append(media);
     }
 
-    mediaContainer = $('<div></div', {
-      class: mediaType + '-container'
-    }).append(media).after(source);
-  }
-
-  container
-    .append('<p class="chapter-header">' + c['Chapter'] + '</p>')
-    .append(media ? mediaContainer : '')
-    .append(media ? source : '')
-    .append('<p class="description">' + c['Description'] + '</p>');
-
-  $('#contents').append(container);
-
-}
-    changeAttribution();
-
-    imgContainerHeight = parseInt(getSetting('_imgContainerHeight'));
-    if (imgContainerHeight > 0) {
-      $('.img-container').css({
-        'height': imgContainerHeight + 'px',
-        'max-height': imgContainerHeight + 'px',
-      });
-    }
-
-    pixelsAbove[0] = 20;
-    for (i = 1; i < chapters.length; i++) {
-      pixelsAbove[i] = pixelsAbove[i-1] + $('div#container' + (i-1)).height() + chapterContainerMargin;
-    }
-    pixelsAbove.push(Number.MAX_VALUE);
-
-    var currentMarkers = [];
-
-    $('div#contents').scroll(function() {
-      var currentPosition = $(this).scrollTop();
-
-      if (currentPosition < 350) {
-        $('#title').css('display', currentPosition > 30 ? 'none' : 'block');
-      }
-      
-      for (var i = 0; i < pixelsAbove.length - 1; i++) {
-        if (currentPosition >= pixelsAbove[i]
-          && currentPosition < (pixelsAbove[i+1] - 2 * chapterContainerMargin)
-          && currentlyInFocus != i
-        ) {
-
-          currentMarkers.forEach(function(marker) {
-            map.removeLayer(marker);
-          });
-          currentMarkers = [];
-
-          location.hash = i + 1;
-
-          $('.chapter-containermap ').removeClass("in-focus").addClass("out-focus");
-          $('div#container' + i).addClass("in-focus").removeClass("out-focus");
-
-          currentlyInFocus = i;
-          markActiveColor(currentlyInFocus);
-
-          // Remover overlay de tiles existente, se necessário
-          if (overlay && map.hasLayer(overlay)) {
-            map.removeLayer(overlay);
-            console.log("Removed existing tile overlay");
-          }
-
-          // Remover GeoJson overlay existente, se necessário
-          if (geoJsonOverlay && map.hasLayer(geoJsonOverlay)) {
-            map.removeLayer(geoJsonOverlay);
-            console.log("Removed existing GeoJson overlay");
-          }
-
-          var c = chapters[i];
-
-          if (c['Latitude'] && c['Longitude']) {
-            var zoom = c['Zoom'] ? c['Zoom'] : CHAPTER_ZOOM;
-            map.flyTo([c['Latitude'], c['Longitude']], zoom, {
-              animate: true,
-              duration: 2, // default is 2 seconds
-            });
-            console.log("Moved map to chapter location:", [c['Latitude'], c['Longitude']]);
-          }
-
-          break;
+    var searchControl = new L.Control.Search({
+        position: 'bottomright',
+        layer: markersLayer,      
+        propertyName: 'title',    
+        marker: false,            
+        moveToLocation: function(latlng, title, map) {
+            map.flyTo(latlng, 17); 
         }
-      }
     });
-https://midias-publicas.enciclopedia.itaucultural.org.br/l6z71jvhkuezqomzwvpvlqo7o9z5
-    $('#contents').append(" \
-      <div class='final'> \
-        <div><a ><br><img src='https://midias-publicas.enciclopedia.itaucultural.org.br/l6z71jvhkuezqomzwvpvlqo7o9z5' width='380px' height='auto' alt='Logo'></a><br></div>\
-        <div id='final-text'><br>Conheça as obras literárias ilustradas por Poty. <br> </div>\
-        <div><br></div>\
-        <div id='button'><a href='https://enciclopedia.itaucultural.org.br/pessoas/506-poty-lazzarotto/obras?p=1' class='button'><img src='https://enciclopedia.itaucultural.org.br/packs/media/images/header/brand-269c1acf4df3d9ad1f7a5f33c12ba821.svg' width='50px' height='auto' alt='Logo'></a></div>\
-        <div><br></div>\
-        <div><a ><br><img src='https://images.prismic.io/museuoscarniemeyer/8a2a0a7c-134a-4b74-8c38-587f32849a97_Colecao-Poty__DSC0278+copiar.jpg' width='380px' height='auto' alt='Logo'></a><br></div>\
-        <div id='final-text'><br>Trilhos e Traços - Poty 100 anos <br> Visite a mostra que reúne aproximadamente 500 obras, um recorte da doação de 4 mil peças realizada pela família do artista ao Museu Oscar Niemeyer, em 2022, e estará disponível ao público. <br> </div>\
-        <div><br></div>\
-        <div id='button'><a href='https://www.museuoscarniemeyer.org.br/exposicoes/trilhosetracos-poty-100-anos' class='button'><img src='media/MON.svg' width='50px' height='auto' alt='Logo'></a></div>\
-        <div><br></div>\
-        <div ><br>Conheça mais sobre a história de Curitiba.<br> </div>\
-        <div><br></div>\
-        <div id='button'><a href='index.html' class='button'><img src='media/poty.png' width='90px' height='auto' alt='Logo'></a></div>\
-        <div id='space-at-the-bottom'>\
-          <a href='#top'>\
-            <span class='to-top'></span><br>\
-            <small>Voltar ao início</small>\
-          </a>\
-        </div>\
-      </div>\
-    ");
+    
+    searchControl.on('search:locationfound', function(e) {
+        if(e.layer._popup) e.layer.openPopup();
+    });
 
-    $("<style>")
-      .prop("type", "text/css")
-      .html("\
-      #narration, #title {\
-      background: " + trySetting('_narrativeBackground', '#efebd6 url("https://www.transparenttextures.com/patterns/batthern.png")') + "; \
-      color: " + trySetting('_narrativeText', '#AB472E') + "; \
-      }\
-      a, a:visited, a:hover {\
-      color: " + trySetting('_narrativeLink', 'black') + "; \
-      }\
-      .in-focus {\
-      background-color: " + trySetting('_narrativeActive', 'rgba(233, 229, 209, 0.5)') +  "; \
-      }")
-      .appendTo("head");
+    map.addControl(searchControl);
 
-    endPixels = parseInt(getSetting('_pixelsAfterFinalChapter'));
-    if (endPixels > 100) {
-      $('#space-at-the-bottom').css({
-        'height': (endPixels / 4) + 'px',
-        'padding-top': (endPixels / 4) + 'px',
-      });
+    if(latlngs.length > 0) {
+        map.fitBounds(latlngs, { padding: [30, 30] });
     }
 
-    var bounds = [];
-    for (i in markers) {
-      if (markers[i]) {
-        markers[i]['_pixelsAbove'] = pixelsAbove[i];
-        markers[i].on('click', function() {
-          var pixels = parseInt($(this)[0]['_pixelsAbove']) + 5;
-          $('div#contents').animate({
-            scrollTop: pixels + 'px'});
-        });
-        bounds.push(markers[i].getLatLng());
-      }
-    }
-    map.fitBounds(bounds);
-
-    $('#map, #narration, #title').css('visibility', 'visible');
+    $('#map').css('visibility', 'visible');
     $('div.loader').css('visibility', 'hidden');
 
-    $('div#container0').addClass("in-focus");
-    $('div#contents').animate({scrollTop: '1px'});
-
-    // On first load, check hash and if it contains an number, scroll down
-    if (parseInt(location.hash.substr(1))) {
-      var containerId = parseInt( location.hash.substr(1) ) - 1;
-      $('#contents').animate({
-        scrollTop: $('#container' + containerId).offset().top
-      }, 2000);
-    }
-
+    // Google Analytics
     var ga = getSetting('_googleAnalytics');
     if ( ga && ga.length >= 10 ) {
       var gaScript = document.createElement('script');
       gaScript.setAttribute('src','https://www.googletagmanager.com/gtag/js?id=' + ga);
       document.head.appendChild(gaScript);
-
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', ga);
     }
-
-
   }
-
-
-  function changeAttribution() {
-    var attributionHTML = $('.leaflet-control-attribution')[0].innerHTML;
-
-  }
-
 });
+
+window.abrirImagemModal = function(src, title) {
+    $('#custom-image-modal').remove();
+
+    var modalHtml = `
+    <div id="custom-image-modal">
+        <span class="close-btn" onclick="$('#custom-image-modal').remove()">&times;</span>
+        <figure id="zoom-container" style="background-image: url('${src}');" 
+            onmousemove="ativarLupa(event)" onmouseleave="desativarLupa()" 
+            ontouchmove="ativarLupa(event)" ontouchend="desativarLupa()">
+            <img id="imagem-base" src="${src}">
+        </figure>
+        <p>${title}</p>
+    </div>
+    `;
+
+    $('body').append(modalHtml);
+
+    $('#custom-image-modal').on('click', function(e) {
+        if (e.target.id === 'custom-image-modal') {
+            $(this).remove();
+        }
+    });
+
+    window.ativarLupa = function(e) {
+        var container = e.currentTarget;
+        var imgBase = document.getElementById("imagem-base");
+        imgBase.style.opacity = 0; 
+        
+        var offsetX, offsetY;
+        if (e.type === 'touchmove') {
+            e.preventDefault(); 
+            var rect = container.getBoundingClientRect();
+            offsetX = e.touches[0].pageX - rect.left - window.scrollX;
+            offsetY = e.touches[0].pageY - rect.top - window.scrollY;
+        } else {
+            offsetX = e.offsetX;
+            offsetY = e.offsetY;
+        }
+        var x = (offsetX / container.offsetWidth) * 100;
+        var y = (offsetY / container.offsetHeight) * 100;
+        container.style.backgroundPosition = x + "% " + y + "%";
+    };
+
+    window.desativarLupa = function() {
+        var imgBase = document.getElementById("imagem-base");
+        if (imgBase) imgBase.style.opacity = 1;
+    };
+};
+
+var controleRota = null;
+var waypointsRota = [];
+var perfilAtual = 'foot';
+
+window.otimizarRota = function() {
+    if (waypointsRota.length <= 2) return;
+
+    var pontoPartida = waypointsRota[0]; 
+    var pontosNaoVisitados = waypointsRota.slice(1); 
+    var novaRotaOtimizada = [pontoPartida];
+    
+    var pontoAtual = pontoPartida;
+
+    while (pontosNaoVisitados.length > 0) {
+        var indiceMaisProximo = 0;
+        var menorDistancia = Infinity;
+
+        for (var i = 0; i < pontosNaoVisitados.length; i++) {
+            var dist = map.distance(pontoAtual, pontosNaoVisitados[i]);
+            if (dist < menorDistancia) {
+                menorDistancia = dist;
+                indiceMaisProximo = i;
+            }
+        }
+
+        pontoAtual = pontosNaoVisitados[indiceMaisProximo];
+        novaRotaOtimizada.push(pontoAtual);
+        
+        pontosNaoVisitados.splice(indiceMaisProximo, 1);
+    }
+
+    waypointsRota = novaRotaOtimizada;
+};
+
+window.adicionarPontoRota = function(destLat, destLon, perfil) {
+    map.closePopup();
+    $('div.loader').css('visibility', 'visible').text('Atualizando rota...');
+
+    if (waypointsRota.length === 0) {
+        if (!navigator.geolocation) {
+            alert("O seu navegador não suporta geolocalização.");
+            $('div.loader').css('visibility', 'hidden').text('Carregando...');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var userLat = position.coords.latitude;
+            var userLon = position.coords.longitude;
+            
+            waypointsRota.push(L.latLng(userLat, userLon)); 
+            waypointsRota.push(L.latLng(destLat, destLon)); 
+            perfilAtual = perfil;
+            
+            desenharRota();
+        }, function(error) {
+            $('div.loader').css('visibility', 'hidden').text('Carregando...');
+            alert("Por favor, permita o acesso à localização para iniciar a sua rota.");
+        });
+        
+    } else {
+        waypointsRota.push(L.latLng(destLat, destLon));
+        if (perfilAtual !== perfil) perfilAtual = perfil;
+        
+        otimizarRota(); 
+        desenharRota();
+    }
+};
+
+window.desenharRota = function() {
+    var urlServidor = perfilAtual === 'foot' 
+        ? 'https://routing.openstreetmap.de/routed-foot/route/v1' 
+        : 'https://routing.openstreetmap.de/routed-bike/route/v1';
+
+    var corDaRota = perfilAtual === 'bike' ? '#BD9825' : '#DC4D01';
+
+    if (controleRota === null) {
+        controleRota = L.Routing.control({
+            position: 'bottomleft',
+            waypoints: waypointsRota,
+            router: L.Routing.osrmv1({
+                serviceUrl: urlServidor,
+                language: 'pt-BR' 
+            }),
+            language: 'pt-BR', 
+            
+            addWaypoints: false,       
+            draggableWaypoints: false, 
+            routeWhileDragging: false,
+
+            lineOptions: {
+                // Aplica a cor dinâmica que definimos acima
+                styles: [{color: corDaRota, opacity: 0.8, weight: 6}], 
+                addWaypoints: false 
+            },
+            createMarker: function(i, wp, nWps) {
+                if (i === 0) {
+                    return L.marker(wp.latLng, {
+                        icon: L.icon({
+                            iconUrl: 'media/chuva.png', 
+                            iconSize: [25, 45]  
+                        })
+                    }).bindPopup('Seu ponto de partida');
+                }
+                return null; 
+            },
+            show: true, 
+            collapsible: false 
+        }).addTo(map);
+
+        controleRota.on('routingstart', function() {
+            $('div.loader').css('visibility', 'visible').text('A calcular a melhor rota...');
+        });
+
+        controleRota.on('routesfound', function(e) {
+            $('div.loader').css('visibility', 'hidden').text('Carregando...');
+            
+            setTimeout(function() {
+                if ($('.btn-fechar-rota').length === 0) {
+                    $('.leaflet-routing-container').append('<div id="btn-fechar-rota" class="btn-fechar-rota" style="background-color: #706e73; color: white; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; margin-bottom: 5px; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">✖ Encerrar Rota e Limpar Mapa</div>');
+                    
+                    $('#btn-fechar-rota').on('click', function(event) {
+                        event.stopPropagation(); 
+                        fecharRota();
+                    });
+                }
+            }, 300);
+        });
+
+        controleRota.on('routingerror', function() {
+            $('div.loader').css('visibility', 'hidden').text('Carregando...');
+            alert('Não foi possível calcular a rota. O servidor pode estar ocupado no momento.');
+        });
+
+    } else {
+        controleRota.getRouter().options.serviceUrl = urlServidor;
+        
+        controleRota.options.lineOptions.styles[0].color = corDaRota;
+        
+        controleRota.setWaypoints(waypointsRota); 
+    }
+};
+
+window.fecharRota = function() {
+    if (controleRota !== null) {
+        map.removeControl(controleRota);
+        
+        controleRota = null;
+        waypointsRota = []; 
+
+        $('.leaflet-routing-container').remove();
+
+        map.eachLayer(function (layer) {
+            if (layer.options && (layer.options.color === '#DC4D01' || layer.options.color === '#BD9825')) {
+                map.removeLayer(layer);
+            }
+            if (layer.getPopup && layer.getPopup() && layer.getPopup().getContent() === 'Seu ponto de partida') {
+                map.removeLayer(layer);
+            }
+        });
+
+        $('div.loader').css('visibility', 'hidden').text('Carregando...');
+    }
+};
+
+// =========================================================
+// TUTORIAL DE BOAS-VINDAS (ONBOARDING) E BOTÃO DE AJUDA
+// =========================================================
+
+$(document).ready(function() {
+    // 1. Constrói o código HTML do Modal e do Botão de Ajuda
+    var tutorialHtml = `
+    <div id="tutorial-modal">
+        <div class="tutorial-content">
+            <span class="fechar-tutorial" onclick="fecharTutorial()">&times;</span>
+            
+            <img src="media/TCC3.png" alt="GeoTy Logo" style="max-height: 60px; margin-bottom: 10px;">
+            <h3 style="color: #DC4D01; margin-top: 0; margin-bottom: 5px;">Você está no GeoTy Map!</h3>
+            <p style="font-size: 15px; margin-top: 0;">Aqui você encontrará as obras de Poty Lazzarotto por Curitiba e região.</p>
+            
+            <hr style="border: 0.5px solid #eee; margin: 15px 0;">
+            
+            <h4 style="color: #3D5368; text-align: left; margin-bottom: 10px;">Para navegar é simples:</h4>
+            <p style="font-size: 13px; text-align: left; margin-top: 0;">No canto inferior você encontrará os seguintes botões:</p>
+            
+            <div class="tutorial-icones">
+                <div class="tutorial-item"><img src="media/pin.png"> <span><strong>Localização:</strong> Mostra onde você está no mapa via GPS.</span></div>
+                <div class="tutorial-item"><img src="media/lupa.png"> <span><strong>Pesquisa:</strong> Busque pelo nome de uma obra específica.</span></div>
+                <div class="tutorial-item"><img src="media/layers.png"> <span><strong>Camadas:</strong> Alterne entre o mapa padrão e a visão de satélite.</span></div>
+                <div class="tutorial-item" style="gap: 5px;"><img src="media/zoomo.png" style="margin-right: 0;"><img src="media/zoomi.png"> <span><strong>Zoom:</strong> Aproxime ou afaste a visão da cidade.</span></div>
+            </div>
+
+            <hr style="border: 0.5px solid #eee; margin: 15px 0;">
+            
+            <h4 style="color: #3D5368; text-align: left; margin-bottom: 10px;">Planeje sua rota:</h4>
+            <p style="font-size: 13px; text-align: left; margin-top: 0;">Encontre o melhor caminho para conhecer as obras. Clique em um PINhão no mapa e escolha:</p>
+            
+            <div style="display: flex; gap: 8px; justify-content: center; margin: 15px 0;">
+                <button class='btn btn-sm' style='background-color: #708444; color: white; font-size: 12px; border-radius: 20px; padding: 6px 12px; border: none; cursor: default;'><i class='fas fa-walking'></i> + A pé</button>
+                <button class='btn btn-sm' style='background-color: #3D5368; color: white; font-size: 12px; border-radius: 20px; padding: 6px 12px; border: none; cursor: default;'><i class='fas fa-bicycle'></i> + De Bike</button>
+            </div>
+            
+            <p style="font-size: 12px; color: #777; font-style: italic;">Dica: Adicione vários pontos! O mapa organizará o caminho mais curto de forma inteligente para que não dê voltas desnecessárias.</p>
+            
+            <button class="btn-comecar" onclick="fecharTutorial()">Começar a Explorar</button>
+        </div>
+    </div>
+
+    <!-- Botão flutuante de interrogação -->
+    <button id="btn-ajuda" onclick="abrirTutorial()" title="Ajuda / Tutorial">
+        <i class="fas fa-question"></i>
+    </button>
+    `;
+
+    $('body').append(tutorialHtml);
+});
+
+// Funções para Abrir e Fechar o Tutorial com animação suave
+window.fecharTutorial = function() {
+    $('#tutorial-modal').fadeOut(300);
+    $('#btn-ajuda').fadeIn(300).css('display', 'flex');
+};
